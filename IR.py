@@ -268,7 +268,7 @@ if __name__=="__main__":
     plt.show()
     '''
 
-    
+    '''
     # Versus assignmentErr
     
     trials=10
@@ -276,7 +276,6 @@ if __name__=="__main__":
     N=60
     assignmentErr_arr = [0.001,0.005,0.01,0.025,0.04,0.055,
                          0.075,0.1,0.2]
-    #ssignmentErr_arr = assignmentErr_arr[:-2]
     print(assignmentErr_arr)
     soc_norm_arr = np.array([[[0,1],[1,0]],[[0,0],[1,0]],
                              [[0,1],[1,1]],[[0,0],[1,1]]])
@@ -303,8 +302,7 @@ if __name__=="__main__":
             cVSaE_arr[soc_label,indaE] = c            
             print(c_arr)
         plt.plot(assignmentErr_arr, c_arr,
-                 'o-', label=Labels[soc_label],
-                 colors=["r","g","b",'k'])
+                 'o-', label=Labels[soc_label])
     np.savez("assignmentErr.npz",
              assErr=assignmentErr_arr, soc_norm = soc_norm_arr,
              cfrac = cVSaE_arr)
@@ -316,43 +314,45 @@ if __name__=="__main__":
     print("time taken : ", time.time()-tt)
     plt.savefig("cfrac_assignmentErr.png")
     plt.show()
-    
 
-    '''
-    # Versus assessmentErr
     
-    w=csv.writer(open("assessmentErr.csv", "w"))
+    # Versus assessmentErr
+
     trials=10
-    gens=3*int(10**5)
+    gens=1*int(10**6)
     N=60
-    assessmentErr_arr = np.logspace(-3,0,10)
-    assessmentErr_arr = assessmentErr_arr[:-2]
+    assessmentErr_arr = [0.001,0.005,0.01,0.025,0.04,0.055,
+                         0.075,0.1,0.2]
     print(assessmentErr_arr)
-    soc_norm_arr = np.array([[[1,0],[0,1]],[[1,1],[0,1]],
-                             [[1,0],[0,0]],[[1,1],[0,0]]])
+    soc_norm_arr = np.array([[[0,1],[1,0]],[[0,0],[1,0]],
+                             [[0,1],[1,1]],[[0,0],[1,1]]])
     Labels = ["SJ", "SS", "SH", "IS"]
     dict_save={}
     soc_label=-1
+    #c_Arr = np.zeros((gens,))
+    cVSaE_arr = np.zeros((4, len(assessmentErr_arr)))
     for soc_norm in soc_norm_arr:
         soc_label = soc_label + 1
         print(soc_norm)
         c_arr = []
-        ind=-1
+        indaE=-1
         for aE in assessmentErr_arr:
-            print(N)
-            ind = ind + 1
+            print("assErr=",aE)
+            indaE = indaE + 1
             [cfrac, r] = sim(N, soc_norm, 1/N, trials, gens,
                              assessmentErr=aE)
             indexout = np.where(r[0,1:]==0)[0][0]
-            c = np.mean(np.mean(cfrac[:,int(gens/10):indexout],
+            print(indexout)
+            c = np.mean(np.mean(cfrac[:,int(gens/2):indexout],
                                 axis=-1),axis=-1)
             c_arr.append(c)
+            cVSaE_arr[soc_label,indaE] = c            
             print(c_arr)
         plt.plot(assessmentErr_arr, c_arr,
                  'o-', label=Labels[soc_label])
-        dict_save[Labels[soc_label]]=c_arr
-    for key, val in dict_save.items():
-        w.writerows([key, val])
+    np.savez("assessmentErr.npz",
+             assErr=assessmentErr_arr, soc_norm = soc_norm_arr,
+             cfrac = cVSaE_arr)
     plt.xscale("log")
     plt.ylim(0,1)
     plt.legend()
@@ -361,49 +361,52 @@ if __name__=="__main__":
     print("time taken : ", time.time()-tt)
     plt.savefig("cfrac_assessmentErr.png")
     plt.show()
-    
 
+
+    '''
     # Versus executionErr
 
-    w=csv.writer(open("executionErr.csv", "w"))
     trials=10
-    gens=3*int(10**5)
+    gens=1*int(10**6)
     N=60
-    executionErr_arr = np.logspace(-3,0,10)
-    executionErr_arr = executionErr_arr[:-2]
+    executionErr_arr = [0.001,0.005,0.01,0.025,0.04,0.055,
+                         0.075,0.1,0.2]
     print(executionErr_arr)
-    soc_norm_arr = np.array([[[1,0],[0,1]],[[1,1],[0,1]],
-                             [[1,0],[0,0]],[[1,1],[0,0]]])
+    soc_norm_arr = np.array([[[0,1],[1,0]],[[0,0],[1,0]],
+                             [[0,1],[1,1]],[[0,0],[1,1]]])
     Labels = ["SJ", "SS", "SH", "IS"]
+    dict_save={}
     soc_label=-1
-    dict_save = {}
+    #c_Arr = np.zeros((gens,))
+    cVSaE_arr = np.zeros((4, len(executionErr_arr)))
     for soc_norm in soc_norm_arr:
         soc_label = soc_label + 1
         print(soc_norm)
         c_arr = []
-        ind=-1
+        indaE=-1
         for aE in executionErr_arr:
-            print(N)
-            ind = ind + 1
+            print("assErr=",aE)
+            indaE = indaE + 1
             [cfrac, r] = sim(N, soc_norm, 1/N, trials, gens,
                              executionErr=aE)
             indexout = np.where(r[0,1:]==0)[0][0]
-            c = np.mean(np.mean(cfrac[:,int(gens/10):indexout],
+            print(indexout)
+            c = np.mean(np.mean(cfrac[:,int(gens/2):indexout],
                                 axis=-1),axis=-1)
             c_arr.append(c)
+            cVSaE_arr[soc_label,indaE] = c            
             print(c_arr)
         plt.plot(executionErr_arr, c_arr,
                  'o-', label=Labels[soc_label])
-        dict_save[Labels[soc_label]]=c_arr
-    for key, val in dict_save.items():
-        w.writerows([key, val])
+    np.savez("executionErr.npz",
+             assErr=executionErr_arr, soc_norm = soc_norm_arr,
+             cfrac = cVSaE_arr)
     plt.xscale("log")
     plt.ylim(0,1)
     plt.legend()
     plt.ylabel("cooperation index")
-    plt.xlabel("execution error")    
+    plt.xlabel("execution error")
     print("time taken : ", time.time()-tt)
     plt.savefig("cfrac_executionErr.png")
     plt.show()
     
-    '''
